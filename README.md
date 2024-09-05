@@ -35,6 +35,14 @@ png in a folder (which will be created if it did not exist yet).
 For more examples, see [`examples.m`](src/examples.m).
 
 
+## Using it in your project.
+There are of course multiple ways to integrate this into your own project. The method
+that I like is to add it as a
+[submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)  to an existing
+repository. This way your different projects can have different versions of this toolbox
+so that old projects won't be affected by breaking changes to this toolbox.
+
+
 ## Limitations
 - Setting the default interpreter to 'Latex', sets it for the current axes but this will
   sometimes be overridden when adjusting other properties or doing some custom stuff.
@@ -52,5 +60,5 @@ For more examples, see [`examples.m`](src/examples.m).
 
 ## Contributing
 This is just a little project of mine but it would be cool to make it work for more
-people. If you encounter issues or use cases that are not supported yet just contact me
-or file an issue or pull request on GitHub.
+people. If you encounter issues or use cases that are not supported yet, or have an idea
+how to make it better, just contact me or file an issue or pull request on GitHub.
