@@ -59,7 +59,7 @@ if opts.setAxesLabels
     ylabel(axMag, sprintf("Magnitude (%s)", opts.magUnits))
     if plotPhase
         xlabel(axPhase, "Frequency (rad/s)")
-        ylabel(axPhase, "phase (deg)")
+        ylabel(axPhase, "Phase (deg)")
     end
 end
 
