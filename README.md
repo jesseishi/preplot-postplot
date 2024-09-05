@@ -44,9 +44,6 @@ so that old projects won't be affected by breaking changes to this toolbox.
 
 
 ## Limitations
-- Setting the default interpreter to 'Latex', sets it for the current axes but this will
-  sometimes be overridden when adjusting other properties or doing some custom stuff.
-  I'll have to look more into this.
 - It does not work well together with plots from Matlab's Control Toolbox because those
   plots (e.g. `bode`) change a lot of the figure properties internally, so this repo
   also includes some custom control toolbox plots (e.g. `mbode`).
