@@ -1,3 +1,7 @@
+%% Add path to src
+% This assumes that the working directory is preplot-postplot.
+addpath('src')
+
 %% Simple example.
 preplot();
 plot(1:10)
@@ -5,21 +9,21 @@ postplot()
 
 
 %% With some customization.
-colors = [0.1, 0.2, 0.3;
-          0.4, 0.5, 0.6];
-[f, axs] = preplot(2, 1, 'paperFormat', 'WES', 'column', 2, ...
-    'lineFrac', 0.8, 'aspectRatio', 1.2, 'colororder', colors);
+colors = [0.15, 0.34, 0.43;
+          0.42, 0.76, 0.61];
+[f, axs] = preplot(2, 1, 'paperFormat', 'WES', 'column', 1, ...
+    'lineFrac', 0.9, 'aspectRatio', 1.2, 'colororder', colors);
 
-t = linspace(0, 10, 1e4);
-plot(axs(1), t, sin(t))
-plot(axs(1), t, cos(t))
-plot(axs(2), t, log10(t))
-plot(axs(2), t, log(t))
+t = linspace(0, 5, 1e5);
+plot(axs(1), t, sin(t), 'LineWidth', 2)
+plot(axs(1), t, cos(t), 'LineWidth', 2)
+plot(axs(2), t, log10(t), 'LineWidth', 2)
+plot(axs(2), t, log(t), 'LineWidth', 2)
 
 xlabel(axs(2), 'Time (s)')
 
-postplot(f, 'Results/test.pdf', 'fontname', 'Monospaced', 'fontSize', 10, ...
-    'legendFontSize', 8, 'sharex', true, 'lineWidth', 1);
+postplot(f, 'fontname', 'Monospaced', 'fontSize', 10, ...
+    'legendFontSize', 8, 'sharex', true);
 
 
 %% Logarithmic plot
@@ -27,15 +31,18 @@ postplot(f, 'Results/test.pdf', 'fontname', 'Monospaced', 'fontSize', 10, ...
 % f = preplot();
 % loglog(1:10)
 % DO:
-f = preplot('YScale', 'log', 'XScale', 'log');
+preplot('YScale', 'log', 'XScale', 'log');
 plot(1:10)
 
 % Or:
-f = preplot('hold', 'off');
+preplot('hold', 'off');
 loglog(1:10)
 
 
 %% Control plots.
+% Plots from the control toolbox don't work together with TiledLayout and
+% are difficult to customize, so this toolbox also provides custom control
+% plotting commands.
 [f, axs] = preplot(2, 2, 'interpreter', 'Latex');
 axBig = nexttile(2, [2,1]);
 
@@ -44,3 +51,18 @@ mbode(sys, axs(1,1), axs(2,1))
 mnyquist(sys, axBig, 'w', logspace(-1, 2, 1e3))
 
 postplot('sharex', true);
+
+
+%% Example plot for README.
+colors = [0.15, 0.34, 0.43;
+          0.42, 0.76, 0.61];
+[f, axs] = preplot(2, 1, 'paperFormat', 'WES', 'column', 1, ...
+    'aspectRatio', 1.2, 'colororder', colors, 'interpreter', 'latex');
+
+sys1 = tf(4, [1, 0.7, 4]);
+sys2 = tf([1, 0.1, 4], [1, 1, 4]);
+mbode([sys1, sys2], axs(1,1), axs(2,1))
+ylim(axs(1), [-40, 20])
+
+postplot(f, 'Images/example.png', 'fontname', 'NimbusRomNo9L', ...
+    'fontSize', 10, 'legendFontSize', 8, 'sharex', true, 'lineWidth', 2);
