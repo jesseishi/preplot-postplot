@@ -122,6 +122,11 @@ if ~isempty(opts.paperFormat)
     f.Position = [1, 1, width, height];
 end
 
+% Set the default interpreter for everything.
+set(f,'defaulttextInterpreter',opts.interpreter)
+set(f,'defaultAxesTickLabelInterpreter',opts.interpreter);
+set(f,'defaultLegendInterpreter',opts.interpreter);
+
 % Use tiledlayout for subplots. Even for single plots this is nice because
 % it creates a tight figure.
 if strcmp(n_rows, 'flow')
@@ -147,10 +152,6 @@ else
     end
 end
 
-% Set the default interpreter for everything.
-set(f,'defaulttextInterpreter',opts.interpreter)
-set(f,'defaultAxesTickLabelInterpreter',opts.interpreter);
-set(f,'defaultLegendInterpreter',opts.interpreter);
 
 % Set the color order and color map.
 % #endrainbow (https://www.fabiocrameri.ch/endrainbow/)

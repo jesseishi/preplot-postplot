@@ -3,3 +3,6 @@
 
 # OSX / *nix default autosave extension
 *.m~
+
+# From one of the examples.
+Images/test.pdf
