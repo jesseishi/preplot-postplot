@@ -91,6 +91,7 @@ if opts.sharex || opts.sharey
                     xmin = min([lim1, lim2]);
                     xmax = max([lim1, lim2]);
                     xlim(ax, [xmin, xmax])
+                    xticks(ax2, xticks(ax));
                 end
             end
             if opts.sharey
@@ -109,6 +110,7 @@ if opts.sharex || opts.sharey
                     ymin = min([lim1, lim2]);
                     ymax = max([lim1, lim2]);
                     ylim(ax, [ymin, ymax])
+                    yticks(ax, yticks(ax2));
                 end
             end
         end
