@@ -1,8 +1,8 @@
 function links = postplot(f, fileName, opts)
 %POSTPLOT Finalize a figure with certain parameters, use together with
 %preplot.
-%   Postplot finalizes a figure by adjusting fonts, sharing x or y axes 
-%   labels and ticks, removing units from plotting with a timetable, and 
+%   Postplot finalizes a figure by adjusting fonts, sharing x or y axes
+%   labels and ticks, removing units from plotting with a timetable, and
 %   more. It's only to avoid repetitive code and to easily make beautiful
 %   plots.
 %
@@ -38,7 +38,7 @@ function links = postplot(f, fileName, opts)
 %     postplot(f, "Results/test.pdf", "fontname", "NimbusRomNo9L",
 %     "fontSize", 10, "Sharex", true)
 %     -> Initializes a figure with preplot, plots on it, changes the font,
-%     fontsize, and removes the xticklabels and xlabel of axs(1) before 
+%     fontsize, and removes the xticklabels and xlabel of axs(1) before
 %     saving it as 'test.pdf' in the folder 'Results'.
 %
 %   See also preplot, linkaxes, fontsize, fontname, exportgraphics.
@@ -69,7 +69,7 @@ if opts.sharex || opts.sharey
     for i = 1:length(axsUnordered)
         ax = axsUnordered(i);
         [iCol, iRow] = ind2sub(flip(gridSize), ax.Layout.Tile);  % flip the gridsize nm because ind2sub is column-major but tiledlayout row-major by default.
-
+        
         
         for j = 1:length(axsUnordered)
             ax2 = axsUnordered(j);
@@ -81,7 +81,7 @@ if opts.sharex || opts.sharey
                 if ax2AboveAx && equalSpanInX
                     ax2.XTickLabel = [];
                     ax2.XAxis.Label.String = [];
-
+                    
                     % Since we removed the x ticks, we need to make sure
                     % that the x limits of the two plots are now linked.
                     links(iLink) = linkprop([ax, ax2], 'XLim');  %#ok because we cannot predict how many links we'll create.
@@ -100,7 +100,7 @@ if opts.sharex || opts.sharey
                 if ax2LeftOfAx && equalSpanInY
                     ax.YTickLabel = [];
                     ax.YAxis.Label.String = [];
-
+                    
                     % Since we removed the y ticks, we need to make sure
                     % that the x limits of the two plots are now linked.
                     links(iLink) = linkprop([ax, ax2], 'YLim');  %#ok because we cannot predict how many links we'll create.
@@ -172,10 +172,13 @@ if ~isempty(fileName)
     if ~isfolder(filepath) && ~matches(filepath, "")
         mkdir(filepath)
     end
-    if strcmp(ext, '.pdf')
-        exportgraphics(f, fileName, 'ContentType', 'vector');
-    else
-        exportgraphics(f, fileName);
+    switch ext
+        case '.pdf'
+            exportgraphics(f, fileName, 'ContentType', 'vector', 'BackGroundColor', 'None');
+        case '.svg'
+            saveas(f, fileName);
+        otherwise
+            exportgraphics(f, fileName);
     end
 end
 
