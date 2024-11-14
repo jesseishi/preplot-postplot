@@ -1,4 +1,4 @@
-function links = postplot(f, fileName, opts)
+function postplot(f, fileName, opts)
 %POSTPLOT Finalize a figure with certain parameters, use together with
 %preplot.
 %   Postplot finalizes a figure by adjusting fonts, sharing x or y axes
@@ -24,12 +24,8 @@ function links = postplot(f, fileName, opts)
 %       y limits.
 %     opts.removeTimetableUnit: When plotting with Timetables, Matlab will
 %       by default put the time unit on the lower right, this removes that.
-%     opts.lineWidth: Set the linewidth of all lines in a figure.
-%
-%   Outputs:
-%      links: When linking axes properties with sharex or sharey, the links
-%        need to remain in the worksapce or they get lost, so we need to
-%        return them.
+%     opts.lineWidth: Set the linewidth of all objects (lines, scatter, 
+%       patch, etc...) in a figure.
 %
 %   Example:
 %     [f, axs] = preplot(2, 1)
@@ -46,15 +42,16 @@ function links = postplot(f, fileName, opts)
 arguments
     f matlab.ui.Figure = gcf
     fileName string = []
+    opts.paperFormat string = []
+    opts.column int8 = 1
+    opts.lineFrac double = 1.0
+    opts.aspectRatio double = 4/3
     opts.fontname = 'default'
     opts.fontSize = 10
     opts.legendFontSize = []
     opts.titleFontSize = []
     opts.fontSizeUnit = 'points'
-    opts.sharex logical = false
-    opts.sharey logical = false
     opts.removeTimetableUnit logical = false
-    opts.linkaxes = false  % Can be 'x', 'y', 'xy'.
     opts.lineWidth = []
 end
 
@@ -62,59 +59,49 @@ end
 axsUnordered = findobj(f, 'Type', 'axes');
 gridSize = f.Children.GridSize;  % Assumes that the plot was made with tiledlayout (through e.g. preplot).
 
-% TODO: documentation and maybe refactor with a local function or so? This
-% is a little bit of magic.
-iLink = 1;
-if opts.sharex || opts.sharey
-    for i = 1:length(axsUnordered)
-        ax = axsUnordered(i);
-        [iCol, iRow] = ind2sub(flip(gridSize), ax.Layout.Tile);  % flip the gridsize nm because ind2sub is column-major but tiledlayout row-major by default.
-        
-        
-        for j = 1:length(axsUnordered)
-            ax2 = axsUnordered(j);
-            [iCol2, iRow2] = ind2sub(flip(gridSize), ax2.Layout.Tile);  % flip the gridsize nm because ind2sub is column-major but tiledlayout row-major by default.
-            
-            if opts.sharex
-                ax2AboveAx = (iRow2 + ax2.Layout.TileSpan(1) == iRow) && (iCol2 == iCol);
-                equalSpanInX = ax2.Layout.TileSpan(2) == ax.Layout.TileSpan(2);
-                if ax2AboveAx && equalSpanInX
-                    ax2.XTickLabel = [];
-                    ax2.XAxis.Label.String = [];
-                    
-                    % Since we removed the x ticks, we need to make sure
-                    % that the x limits of the two plots are now linked.
-                    links(iLink) = linkprop([ax, ax2], 'XLim');  %#ok because we cannot predict how many links we'll create.
-                    iLink = iLink + 1;
-                    lim1 = get(ax, 'XLim');
-                    lim2 = get(ax2, 'XLim');
-                    xmin = min([lim1, lim2]);
-                    xmax = max([lim1, lim2]);
-                    xlim(ax, [xmin, xmax])
-                    xticks(ax2, xticks(ax));
-                end
+% Change the default size of the figure if specified by the user through
+% paperFormat, column, lineFrac, and aspectRatio.
+if ~isempty(opts.paperFormat)
+    switch opts.paperFormat
+        case "NAWEA"
+            % 6.5 inch line width.
+            f.Units = 'inches';
+            basewidth = 6.5;
+        case "ppt"
+            % Widescreen ppt format (16:9)
+            f.Units = 'centimeters';
+            basewidth = 33.867;
+        case "WES"
+            % I can't really find what it officially is so I just measured it.
+            f.Units = 'inches';
+            if opts.column == 1
+                basewidth = 3.35;
+            elseif opts.column == 2
+                basewidth = 7;
+            else
+                error('Not configures for column = %i', opts.column)
             end
-            if opts.sharey
-                ax2LeftOfAx = (iCol2 + ax2.Layout.TileSpan(2) == iCol) && (iRow2 == iRow);
-                equalSpanInY = ax2.Layout.TileSpan(1) == ax.Layout.TileSpan(1);
-                if ax2LeftOfAx && equalSpanInY
-                    ax.YTickLabel = [];
-                    ax.YAxis.Label.String = [];
-                    
-                    % Since we removed the y ticks, we need to make sure
-                    % that the x limits of the two plots are now linked.
-                    links(iLink) = linkprop([ax, ax2], 'YLim');  %#ok because we cannot predict how many links we'll create.
-                    iLink = iLink + 1;
-                    lim1 = get(ax, 'yLim');
-                    lim2 = get(ax2, 'YLim');
-                    ymin = min([lim1, lim2]);
-                    ymax = max([lim1, lim2]);
-                    ylim(ax, [ymin, ymax])
-                    yticks(ax, yticks(ax2));
-                end
+        case 'ACC'
+            f.Units = 'inches';
+            if opts.column == 1
+                basewidth = 3.41;
+            elseif opts.column == 2
+                basewidth = 7;
+            else
+                error('Not configured for column = %i', opts.column);
             end
-        end
+        case "iop"  % Also Torque
+            f.Units = 'centimeter';
+            basewidth = 16;
+            if opts.column == 2
+                error('Column == 2 not available for iop or Torque.')
+            end
+        otherwise
+            error('paperFormat %s is unknown to me', opts.paperFormat)
     end
+    width = basewidth * opts.lineFrac;
+    height = width / opts.aspectRatio;
+    f.Position = [1, 1, width, height];
 end
 
 % When doing timetable plots (which I like and often do), Matlab
@@ -126,16 +113,6 @@ if opts.removeTimetableUnit
         % Interestingly, this operation gets rid of it.
         axsUnordered(i).XAxis.TickLabels = axsUnordered(i).XAxis.TickLabels;
     end
-end
-
-% Linking axes.
-% Matlab can only handle a single function call to linkaxes before links
-% are broken again. So I'm 'translating' the linkaxes commands to linkprop
-% command, of which multiple can exists. However, the resulting links
-% should remain in the Workspace of the user and are thus returned by
-% postplot.
-if opts.linkaxes
-    linkaxes(axsUnordered, opts.linkaxes)
 end
 
 % Adjust font size

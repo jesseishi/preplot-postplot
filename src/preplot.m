@@ -54,10 +54,6 @@ arguments
     n_rows = 1  % Can also be 'flow' to use the flow tiledlayout.
     n_cols = 1
     opts.fnum = []  % Better if positional? So you can easily define it and not get a ton of plots when trying stuff out?
-    opts.paperFormat string = []
-    opts.column int8 = 1
-    opts.lineFrac double = 1.0
-    opts.aspectRatio double = 4/3
     opts.TileSpacing string = 'tight'
     opts.Padding string = 'tight'
     opts.initializeAxes logical = true
@@ -65,6 +61,8 @@ arguments
     opts.grid string = 'on'
     opts.XScale string = 'linear'
     opts.YScale string = 'linear'
+    opts.sharex = false
+    opts.sharey = false
     opts.interpreter string = 'tex'
     opts.colororder = 'default'
     opts.colormap = 'default'    % Recommended: batlow
@@ -75,51 +73,6 @@ if opts.fnum
     f = figure(opts.fnum);
 else
     f = figure;
-end
-
-% Change the default size of the figure if specified by the user through
-% paperFormat, column, lineFrac, and aspectRatio.
-if ~isempty(opts.paperFormat)
-    switch opts.paperFormat
-        case "NAWEA"
-            % 6.5 inch line width.
-            f.Units = 'inches';
-            basewidth = 6.5;
-        case "ppt"
-            % Widescreen ppt format (16:9)
-            f.Units = 'centimeters';
-            basewidth = 33.867;
-        case "WES"
-            % I can't really find what it officially is so I just measured it.
-            f.Units = 'inches';
-            if opts.column == 1
-                basewidth = 3.35;
-            elseif opts.column == 2
-                basewidth = 7;
-            else
-                error('Not configures for column = %i', opts.column)
-            end
-        case 'ACC'
-            f.Units = 'inches';
-            if opts.column == 1
-                basewidth = 3.41;
-            elseif opts.column == 2
-                basewidth = 7;
-            else
-                error('Not configured for column = %i', opts.column);
-            end
-        case "iop"  % Also Torque
-            f.Units = 'centimeter';
-            basewidth = 16;
-            if opts.column == 2
-                error('Column == 2 not available for iop or Torque.')
-            end
-        otherwise
-            error('paperFormat %s is unknown to me', opts.paperFormat)
-    end
-    width = basewidth * opts.lineFrac;
-    height = width / opts.aspectRatio;
-    f.Position = [1, 1, width, height];
 end
 
 % Set the default interpreter for everything.
@@ -147,10 +100,53 @@ else
                 grid(axs(i,j), opts.grid)
                 set(axs(i,j), 'XScale', opts.XScale)
                 set(axs(i,j), 'YScale', opts.YScale)
+
+                % Remove axes labels on all but the last axis when sharing
+                % x or y axes.
+                if opts.sharex == true | strcmp(opts.sharex, 'row') | strcmp(opts.sharex, 'col')
+                    if i ~= n_rows
+                        axs(i,j).XTickLabel = [];
+                    end
+                end
+                if opts.sharey == true | strcmp(opts.sharey, 'row') | strcmp(opts.sharey, 'col')
+                    if j ~= n_cols
+                        axs(i,j).YTickLabel = [];
+                    end
+                end
+                
             end
         end
     end
 end
+
+% Also link the limits and ticks when sharing axes.
+hlink = [];
+switch opts.sharex
+    case true
+        hlink = [hlink, linkprop(axs, {'XLim', 'XTick'})];  
+    case 'row'
+        for i = 1:n_cols
+            hlink = [hlink, linkprop(axs(i, :), {'XLim', 'XTick'})];  %#ok
+        end
+    case 'col'
+        for i = 1:n_rows
+            hlink = [hlink, linkprop(axs(:, i), {'XLim', 'XTick'})];  %#ok
+        end
+end
+switch opts.sharey
+    case true
+        hlink = [hlink, linkprop(axs, {'YLim', 'YTick'})];
+    case 'row'
+        for i = 1:n_cols
+            hlink = [hlink, linkprop(axs(i, :), {'YLim', 'YTick'})];  %#ok
+        end
+    case 'col'
+        for i = 1:n_rows
+            hlink = [hlink, linkprop(axs(:, i), {'YLim', 'YTick'})];  %#ok
+        end
+end
+% The link objects must be saved, otherwise the links will be broken.
+f.UserData = hlink;
 
 
 % Set the color order and color map.
