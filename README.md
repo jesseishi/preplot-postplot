@@ -1,5 +1,6 @@
 # preplot-postplot
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14164828.svg)](https://doi.org/10.5281/zenodo.14164828)
 ![GitHub Release](https://img.shields.io/github/v/release/jesseishi/preplot-postplot)
 ![GitHub top language](https://img.shields.io/github/languages/top/jesseishi/preplot-postplot)
 ![GitHub License](https://img.shields.io/github/license/jesseishi/preplot-postplot)
