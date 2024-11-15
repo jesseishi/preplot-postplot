@@ -1,9 +1,9 @@
 # preplot-postplot
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14164828.svg)](https://doi.org/10.5281/zenodo.14164828)
-![GitHub Release](https://img.shields.io/github/v/release/jesseishi/preplot-postplot)
-![GitHub top language](https://img.shields.io/github/languages/top/jesseishi/preplot-postplot)
-![GitHub License](https://img.shields.io/github/license/jesseishi/preplot-postplot)
+[![GitHub Release](https://img.shields.io/github/v/release/jesseishi/preplot-postplot)](https://github.com/jesseishi/preplot-postplot/releases)
+[![GitHub top language](https://img.shields.io/github/languages/top/jesseishi/preplot-postplot)](https://nl.mathworks.com/products/matlab.html)
+[![GitHub License](https://img.shields.io/github/license/jesseishi/preplot-postplot)](LICENSE)
 
 Easily make beautiful (control) plots in Matlab by avoiding repetitive code.
 The basic idea is simple:
@@ -11,7 +11,7 @@ The basic idea is simple:
 ```Matlab
 preplot();
 plot(1:10)
-postplot()
+postplot();
 ```
 
 From here on it is just customization:
